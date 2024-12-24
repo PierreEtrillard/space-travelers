@@ -1,28 +1,32 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule } from "@angular/common";
+import { Component, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { MatListModule } from '@angular/material/list';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from "@angular/material/card";
 import { FlightsService } from '../services/flights.service';
-import { catchError, Observable, of } from 'rxjs';
-import { Destination } from '../models/destination';
+import { RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [MatSidenavModule,CommonModule],
+  imports: [
+    MatSidenavModule,
+    MatListModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatCardModule,
+    CommonModule,
+    RouterLink,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent  {
-  destinations$: Observable<Destination[]>;
-
-  constructor(private flightsService: FlightsService) {
-    // Initialisation de l'observable directement dans le constructeur
-    this.destinations$ = this.getDestinations();
-  }
-  getDestinations(): Observable<Destination[]> {
-    // Appel direct au service pour obtenir les destinations
-    return this.flightsService.getDestinations();
-  }
+export class DashboardComponent {
+  private flightsService = inject(FlightsService);
+  destinations = this.flightsService.destiantions;
+  destinationsAmount = computed(() => this.destinations().length);
+  picsUrl = `${environment.apiUrl}/files/`
 }

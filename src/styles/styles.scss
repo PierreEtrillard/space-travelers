@@ -46,3 +46,37 @@ html, body {
 
 }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+a{color: none;
+text-decoration: none;}
+.menu-trigger{
+  display: flex;
+  flex-direction: column;
+  width: 2rem;
+  &-toLeft{
+    transform: translateX(-100%);
+  }
+  .stripe{
+    background-color: white;
+    margin: 0.6rem;
+    border-radius: 50px;
+    height: 0.1rem;
+    width: 2rem;
+    transition: ease-out 500ms;
+    &-top-opened {
+      transform-origin: right;
+      transform: rotate(-35deg) scaleX(1.2);
+    }
+    &-middle-opened {
+      opacity: 0;
+    }
+    &-bottom-opened {
+      transform-origin: right;
+      transform: rotate(35deg) scaleX(1.2);
+    }
+  }
+}
+.sidenav{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

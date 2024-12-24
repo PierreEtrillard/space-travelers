@@ -1,7 +1,45 @@
 <mat-sidenav-container>
-    <mat-sidenav mode="side" opened="true">
-      Navigation menu
-    </mat-sidenav>
- <h1>Découvrez vers les {{destinations$ |async}}  les plus prisées du système solaire</h1>
-  </mat-sidenav-container>
-  
+  <mat-sidenav #sidenav mode="side" opened position="end" class="sidenav">
+    <mat-list>
+      <mat-list-item><a routerLink="account">Mon compte</a></mat-list-item>
+      <mat-list-item><a routerLink="flights">Trouver un vol</a></mat-list-item>
+      <mat-list-item><a routerLink="aircrafts">Découvrez nos appareils</a></mat-list-item>
+    </mat-list>
+  </mat-sidenav>
+  <mat-sidenav-content id="destinations-container">
+    <mat-toolbar id="header-section">
+      <h1>Décolez vers les {{destinationsAmount()}} destinations les plus prisées du système solaire</h1>
+      <div class="spacer"></div>
+      <button type="button" mat-button (click)="sidenav.toggle()" class="menu-trigger"
+        [ngClass]="{'menu-trigger-roll':!sidenav.opened}">
+        <div class="stripe" [ngClass]="{'stripe-top-opened':sidenav.opened}"></div>
+        <div class="stripe" [ngClass]="{'stripe-middle-opened':sidenav.opened}"></div>
+        <div class="stripe" [ngClass]="{'stripe-bottom-opened':sidenav.opened}"></div>
+      </button>
+
+    </mat-toolbar>
+    <div class="card-container">    @for (destination of destinations(); track $index) {
+    <mat-card class="destination-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>{{destination.name}}</mat-card-title>
+      </mat-card-header>
+      <img mat-card-image [src]="picsUrl + destination.photoRef" [alt]="'Photo de '+  destination.name">
+      <mat-card-content>
+        <p>
+          {{destination.description}}
+        </p>
+        <p>à {{destination.name}} vous pourrez:</p>
+        <mat-list>
+          @for (activitie of destination.activities; track $index) {
+          <mat-list-item>activitie</mat-list-item>}
+        </mat-list>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button>Trouver le prochain vol vers {{destination.name}}</button>
+      </mat-card-actions>
+    </mat-card>
+    }
+  </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>
