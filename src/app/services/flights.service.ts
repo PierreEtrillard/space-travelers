@@ -12,10 +12,10 @@ export class FlightsService {
   private httpOptions: any = { withCredentials: true };
   private apiUrl = environment.apiUrl;
   private http=inject( HttpClient) 
+  destinations$ = this.http.get<Destination[]>(`${this.apiUrl}/destinations`);
   destinations= toSignal(
     this.http.get<Destination[]>(`${this.apiUrl}/destinations`).pipe(
       map((res) => {
-        console.table(res);
         return res;
       })
     )

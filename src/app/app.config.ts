@@ -6,8 +6,11 @@ import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { environment } from "../environments/environment";
 import { provideHttpClient } from "@angular/common/http";
-import { provideStore } from '@ngrx/store';
+import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { provideEffects } from '@ngrx/effects';
+import { destinationsFeature } from "./store/destinations/destinations.reducer";
+import { loadDestinations$ } from "./store/destinations/destinations.effects";
 const keycloakUrl:string= environment.keycloakUrl;
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -27,6 +30,8 @@ function initializeKeycloak(keycloak: KeycloakService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideStore(),
+    provideState(destinationsFeature),
+    provideEffects({loadDestinations$}),
     provideStoreDevtools(),
     KeycloakService,
     {
@@ -40,6 +45,5 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideStore()
 ]
 };
