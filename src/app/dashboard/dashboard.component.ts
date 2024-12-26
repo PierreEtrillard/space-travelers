@@ -25,8 +25,13 @@ import { environment } from '../../environments/environment';
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
-  private flightsService = inject(FlightsService);
-  destinations = this.flightsService.destiantions;
-  destinationsAmount = computed(() => this.destinations().length);
   picsUrl = `${environment.apiUrl}/files/`
+  private flightsService = inject(FlightsService);
+  destinations = this.flightsService.destinations;
+  destinationsAmount = computed(() => this.destinations().length);
+  
+  foundFlight(destination: string) {
+    
+    throw new Error('Method not implemented.');
+  }
 }

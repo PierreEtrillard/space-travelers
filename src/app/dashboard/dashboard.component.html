@@ -1,5 +1,5 @@
 <mat-sidenav-container>
-  <mat-sidenav #sidenav mode="side" opened position="end" class="sidenav">
+  <mat-sidenav #sidenav mode="side" opened="false" position="end" class="sidenav">
     <mat-list>
       <mat-list-item><a routerLink="account">Mon compte</a></mat-list-item>
       <mat-list-item><a routerLink="flights">Trouver un vol</a></mat-list-item>
@@ -28,14 +28,14 @@
         <p>
           {{destination.description}}
         </p>
-        <p>à {{destination.name}} vous pourrez:</p>
+        <p>{{destination.name}} c'est le lieu idéal pour :</p>
         <mat-list>
           @for (activitie of destination.activities; track $index) {
-          <mat-list-item>activitie</mat-list-item>}
+          <mat-list-item>{{activitie}}</mat-list-item>}
         </mat-list>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-button>Trouver le prochain vol vers {{destination.name}}</button>
+        <button mat-button (click)="foundFlight(destination.name)">Trouver le prochain vol vers {{destination.name}}</button>
       </mat-card-actions>
     </mat-card>
     }
