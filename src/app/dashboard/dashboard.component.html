@@ -11,7 +11,7 @@
       <h1>Décolez vers les {{destinationsAmount()}} destinations les plus prisées du système solaire</h1>
       <div class="spacer"></div>
       <button type="button" mat-button (click)="sidenav.toggle()" class="menu-trigger"
-        [ngClass]="{'menu-trigger-roll':!sidenav.opened}">
+        [ngClass]="{'menu-trigger-roll':sidenav.opened}">
         <div class="stripe" [ngClass]="{'stripe-top-opened':sidenav.opened}"></div>
         <div class="stripe" [ngClass]="{'stripe-middle-opened':sidenav.opened}"></div>
         <div class="stripe" [ngClass]="{'stripe-bottom-opened':sidenav.opened}"></div>

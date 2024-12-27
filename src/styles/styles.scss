@@ -52,8 +52,12 @@ text-decoration: none;}
   display: flex;
   flex-direction: column;
   width: 2rem;
+  z-index: 10;
   &-toLeft{
     transform: translateX(-100%);
+  }
+  &-roll{
+    transform: rotate(-1turn);
   }
   .stripe{
     background-color: white;

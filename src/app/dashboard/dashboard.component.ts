@@ -11,6 +11,7 @@ import { environment } from '../../environments/environment';
 import { Store } from '@ngrx/store';
 import { destinationsFeature } from '../store/destinations/destinations.reducer';
 import { Destination } from '../models/destination';
+import { DestinationsActions } from '../store/destinations/destinations.actions';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,26 +32,15 @@ export class DashboardComponent {
   picsUrl = `${environment.apiUrl}/files/`
   loading =signal(true);
   private store =inject(Store);
-  destinations: WritableSignal<Destination[]>= signal([]);
-  destinationsAmount = computed(() => this.destinations().length);
+  readonly destinations =  this.store.selectSignal(destinationsFeature.selectDestinations);
+  readonly destinationsAmount = computed(()=>this.destinations().length);
   constructor() {
-    // Écouter les changements dans l'état de la feature
-    const destinationsStateSelector = destinationsFeature.selectors;
-    effect(() => {
-      const destinationsState = this.store.selectSignal(destinationsStateSelector);
-      this.destinations.set(destinationsFeature.selectAll(featureState()));
-      this.loading.set(destinationsState().loading);
-    });
-
     // Déclencher le chargement des données
-    this.store.dispatch(destinationsFeature.loadDestinations());
+    this.store.dispatch(DestinationsActions.loadDestinations());
   }
   foundFlight(destination: string) {
     
     throw new Error('Method not implemented.');
   }
-}
-function loadDestinations(): any {
-  throw new Error('Function not implemented.');
 }
 
