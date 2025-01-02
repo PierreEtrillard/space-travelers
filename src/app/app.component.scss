@@ -1,0 +1,15 @@
+@use '../styles/m3-theme.scss' as space-travelers-theme;
+#header-sup {
+  border-bottom: map-get(space-travelers-theme.$brand-color, primary) solid
+    0.2rem;
+}
+#header-subtitle{
+    white-space: normal;
+}
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+.mat-drawer-container {
+  height: 100%;
+  background: transparent;
+}

@@ -1,13 +1,36 @@
 <header>
-  <mat-toolbar id="header">
-      <span routerLink="/"><img src="/logo.svg"></span>
-      <span class="spacer"></span>
+  <mat-toolbar>
+    <mat-toolbar-row id="header-sup">
+      <button type="button" mat-button  routerLink="/"><img src="/logo.svg"></button>
+      <span class="toolbar-spacer"></span>
       @if (isConnected()) {
-        <span>{{userName()}} est connecté</span>
-        <span (click)="logout()">logout</span><br>
+      <span>{{userName()}} est connecté</span>
+      <button type="button" mat-button (click)="logout()">logout</button><br>
       }@else {
-        <span (click)="login()">Login</span>
+      <button type="button" mat-button (click)="login()">Login</button>
       }
-    </mat-toolbar>
-  </header>
-<router-outlet/>
+    </mat-toolbar-row>
+    <mat-toolbar-row id="header-section">
+      <h1 id="header-subtitle">{{subTitle()}}</h1>
+      <span class="toolbar-spacer"></span>
+      <button type="button" mat-button (click)="sidenav.toggle()" class="menu-trigger">
+        <div class="stripe" [ngClass]="{'stripe-top-opened':sidenav.opened}"></div>
+        <div class="stripe" [ngClass]="{'stripe-middle-opened':sidenav.opened}"></div>
+        <div class="stripe" [ngClass]="{'stripe-bottom-opened':sidenav.opened}"></div>
+      </button>
+
+    </mat-toolbar-row>
+  </mat-toolbar>
+</header>
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="side" opened="false" position="end" class="sidenav">
+    <mat-list>
+      <mat-list-item><a matListItemLine routerLink="account">Mon compte</a></mat-list-item>
+      <mat-list-item><a matListItemLine routerLink="flights">Trouver un vol</a></mat-list-item>
+      <mat-list-item><a matListItemLine routerLink="aircrafts">Découvrez nos appareils</a></mat-list-item>
+    </mat-list>
+  </mat-sidenav>
+  <mat-sidenav-content id="main-container">
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>

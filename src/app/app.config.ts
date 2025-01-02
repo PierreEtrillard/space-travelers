@@ -9,8 +9,9 @@ import { provideHttpClient } from "@angular/common/http";
 import { provideState, provideStore } from '@ngrx/store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
 import { provideEffects } from '@ngrx/effects';
-import { destinationsFeature } from "./store/destinations/destinations.reducer";
-import { loadDestinations$ } from "./store/destinations/destinations.effects";
+import { destinationsFeature } from "./store/reducers/destinations.reducer";
+import { selectionReducer } from "./store/reducers/selection.reducer";
+import { loadDestinations$ } from "./store/effects/destinations.effects";
 const keycloakUrl:string= environment.keycloakUrl;
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -30,6 +31,7 @@ function initializeKeycloak(keycloak: KeycloakService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideStore(),
+    provideState({name:"selection",reducer:selectionReducer}),
     provideState(destinationsFeature),
     provideEffects({loadDestinations$}),
     provideStoreDevtools(),

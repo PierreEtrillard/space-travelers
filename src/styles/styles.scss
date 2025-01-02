@@ -18,15 +18,7 @@
   @media (prefers-color-sheme: light){
     @include mat.all-component-themes(space-travelers-theme.$light-theme);
   }
-  #header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: map-get(space-travelers-theme.$brand-color, primary) solid 0.2rem;
-    &>span{
-        cursor: pointer;
-    }
-}
+
   @include mat.color-variants-backwards-compatibility(space-travelers-theme.$light-theme);
 }
 // Comment out the line below if you want to use the deprecated `color` inputs.
