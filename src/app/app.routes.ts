@@ -1,8 +1,8 @@
 import { Routes } from "@angular/router";
 import { DashboardComponent } from "./dashboard/dashboard.component";
-import { FlightComponent } from "./flights/flight/flight.component";
 import { FlightsComponent } from "./flights/flights.component";
 import { NotFoundComponent } from "./not-found/not-found.component";
+import { FlightComponent } from "./flights/flight/flight.component";
 
 
 export const routes:Routes=[
