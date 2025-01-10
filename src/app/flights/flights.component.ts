@@ -24,7 +24,7 @@ export class FlightsComponent {
     effect(() => {
       if (this.registredFlights()) {        
         this.headerService.subtitle.set(
-          `Laissez nous vous surprendre avec nos ${this.registredFlights()} vols actuellement programmés !`
+          `Laissez vous surprendre avec nos ${this.registredFlights()} vols actuellement programmés !`
         );
       }
     },{allowSignalWrites:true});
