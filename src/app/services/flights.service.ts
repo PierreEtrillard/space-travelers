@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Destination } from '../models/destination';
-import { from, map, Observable, switchMap } from 'rxjs';
+import { concatMap, forkJoin, from, map, Observable, switchMap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { selectionFeature } from '../store/reducers/selection.reducer';
@@ -36,7 +36,7 @@ export class FlightsService {
   countFlightsRegistred$ = this.http.get<number>(
     `${this.apiUrl}/flights/count`
   );
-  getTakeOffDatesFrom(station: string):Observable<Date[]> {
+  getTakeOffDatesFromOne(station: string): Observable<Date[]> {
     interface TakeOffDatesDto {
       departure: Date;
     }
@@ -47,5 +47,14 @@ export class FlightsService {
           takeOffList.map((takeOffDate) => new Date(takeOffDate.departure))
         )
       );
+  }
+  getTakeOffDatesFromMany(stations: string[]): Observable<Date[]> {
+    return from(stations)
+    .pipe(
+      concatMap((station:string) => {
+        console.log("station: "+station);
+        
+        return this.getTakeOffDatesFromOne(station)}
+    ))
   }
 }
