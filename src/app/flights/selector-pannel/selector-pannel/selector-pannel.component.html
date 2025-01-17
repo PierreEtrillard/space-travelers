@@ -1,0 +1,146 @@
+<div> level: {{stepLevel()!==1}}</div>
+<form (ngSubmit)="searchFlights()" class="selection-form">
+  <mat-card class="selection-form-content">
+    <mat-card-header>
+      <mat-card-title class="pannel-header">
+        <div class="step">
+          <button mat-icon-button color="primary" (click)="toStep(1)" class="completed">1</button>
+          <span class="step step-title">Ou </span><span class="step step-title"
+            [ngClass]="{'shrinked':stepLevel()!==1}">souhaitez-vous aller</span><span class="step step-title"> ?</span>
+        </div>
+        <div class="step">
+          <button mat-icon-button color="primary" (click)="toStep(2)" class="completed">2</button>
+          <span class="step step-title">
+            Qui </span> <span class="step step-title" [ngClass]="{'shrinked':stepLevel()!==2}">sera du
+            voyage</span><span class="step step-title"> ?</span>
+        </div>
+        <div class="step">
+          <button mat-icon-button color="primary" (click)="toStep(3)" class="completed">3</button>
+          <span class="step step-title">
+            Quand</span><span class="step step-title" [ngClass]="{'shrinked':stepLevel()!==3}">voulez-vous
+            partir</span><span class="step step-title"> ?</span>
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="section-wrapper">
+
+      <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
+        <!-- Origine -->
+        <mat-form-field appearance="outline">
+          <mat-label>Origine <mat-icon>flight_takeoff</mat-icon></mat-label>
+          <mat-select name="origin" [(ngModel)]="selectionForm.origin">
+            @for (station of stations() ; track $index) {
+            <mat-option [value]="station.name">{{station.name}}</mat-option>
+            }
+          </mat-select>
+          @if(!selectionForm.origin){<mat-error>L'origine est requise.</mat-error>}
+        </mat-form-field>
+        <!-- Destinations -->
+        <mat-form-field appearance="outline">
+          <mat-label><mat-icon>flight_landing</mat-icon> Destinations </mat-label>
+          <input name="destinations" matInput [(ngModel)]="selectionForm.destinations"
+            placeholder="Ajouter des destinations (séparées par des virgules)" />
+          @if(selectionForm.destinations.length < 1){<mat-error>Une destination est requise.</mat-error>}
+        </mat-form-field>
+
+      </div>
+      <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
+        <!-- Classe -->
+        <mat-form-field appearance="outline" class="field-large">
+          <mat-label>Classe</mat-label>
+          <mat-select name="class" [(ngModel)]="selectionForm.class" required>
+            <mat-option value="eco">Économique</mat-option>
+            <mat-option value="business">Affaires</mat-option>
+            <mat-option value="premium">Première</mat-option>
+          </mat-select>
+          @if(!selectionForm.class){ <mat-error>La classe est requise.</mat-error>}
+        </mat-form-field>
+        <!-- Passagers -->
+        <mat-form-field appearance="outline" class="field-small">
+          <mat-label>Nombre de Passagers</mat-label>
+          <input name="passengers" matInput type="number" min="1" [(ngModel)]="selectionForm.passengers" />
+          @if(selectionForm.passengers<1){ <mat-error>Au moins 1 passager requis.</mat-error>}
+        </mat-form-field>
+      </div>
+      <!--  pannel-section pannel-section dates -->
+      <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
+        <div class="departure-fields ">
+          <!-- Date de départ -->
+          <mat-form-field appearance="outline" class="field-small">
+            <mat-label>Départ</mat-label>
+            <input name="departure-date" [min]="availableDepartureDates()[0]" matInput [matDatepicker]="departurePicker"
+              [matDatepickerFilter]="departureDateFilter" [(ngModel)]="selectionForm.departureDate" />
+            <mat-datepicker-toggle matSuffix [for]="departurePicker"></mat-datepicker-toggle>
+            <mat-datepicker #departurePicker></mat-datepicker>
+          </mat-form-field>
+          <!-- Variation de la date de départ -->
+          <mat-form-field appearance="outline" class="field-large">
+            <mat-label>~ {{selectionForm.departureVariation*2}} jours</mat-label>
+            <mat-select name="departure-variation" [(ngModel)]="selectionForm.departureVariation" required>
+              <mat-option value="1">2 jours</mat-option>
+              <mat-option value="3.5">1 semaine</mat-option>
+              <mat-option value="15">1 mois</mat-option>
+            </mat-select>
+            @if(!selectionForm.departureDate){ <mat-error>Aucune date séléctionnée</mat-error>}
+
+          </mat-form-field>
+        </div>
+        <!-- Trajet simple -->
+        <mat-button-toggle-group name="singleJourney" [(ngModel)]="selectionForm.singleJourney">
+          <mat-button-toggle [value]="true"> Trajet simple</mat-button-toggle>
+          <mat-button-toggle [value]="false">Allez-Retour</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+      @if(!selectionForm.singleJourney){
+      <span>{{selectionForm.singleJourney}}</span>
+      <div class="field">
+        <!-- Date de retour -->
+        <mat-form-field appearance="outline" class="field-small">
+          <mat-label>Retour</mat-label>
+          <input name="return-date" [min]="availableReturnDates()[0]" matInput [matDatepicker]="returnPicker"
+            [matDatepickerFilter]="returnDateFilter" [(ngModel)]="selectionForm.returnDate" />
+          <mat-datepicker-toggle matSuffix [for]="returnPicker"></mat-datepicker-toggle>
+          <mat-datepicker #returnPicker></mat-datepicker>
+        </mat-form-field>
+        <!-- Variation de la date de retour -->
+        <mat-form-field appearance="outline" class="field-large">
+          <mat-label>~ {{selectionForm.returnVariation*2}} jours</mat-label>
+          <mat-select name="return-variation" [(ngModel)]="selectionForm.returnVariation">
+            <mat-option value="1">2 jours</mat-option>
+            <mat-option value="3.5">1 semaine</mat-option>
+            <mat-option value="15">1 mois</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      }
+    </mat-card-content>
+    <button class="action-btn action-btn-left" mat-mini-fab type="reset"
+      (click)="onReset()"><mat-icon>autorenew</mat-icon>
+    </button>
+    <mat-card-actions class="action-btn-wrapper">
+      @switch (stepLevel()) {
+      @case (1){
+      <button mat-fab color="accent" disabled="false" type="button"><mat-icon>arrow_left</mat-icon></button>
+      <button mat-fab color="accent" disabled="selectionForm.origin && selectionForm.destinations.length"
+        type="button"><mat-icon>arrow_right</mat-icon></button>
+      }
+      @case (2){
+      <button mat-fab color="accent" disabled="false" type="button"><mat-icon>arrow_left</mat-icon></button>
+
+      <button mat-fab color="accent" [disabled]="(selectionForm.class && selectionForm.passengers)"
+        type="button"><mat-icon>arrow_right</mat-icon></button>
+      }
+      @case (3){
+      <button mat-fab color="accent" disabled="false" type="button"><mat-icon>arrow_left</mat-icon></button>
+
+      <button mat-fab extended color="accent" type="submit" [disabled]="true">
+        Trouver un vol<mat-icon>rocket_launch</mat-icon>
+      </button>
+      }
+      @default{
+
+      }
+      }
+    </mat-card-actions>
+  </mat-card>
+</form>
