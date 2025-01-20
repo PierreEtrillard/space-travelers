@@ -2,28 +2,28 @@
 <form (ngSubmit)="searchFlights()" class="selection-form">
   <mat-card class="selection-form-content">
     <mat-card-header>
-      <mat-card-title class="pannel-header">
+      <mat-card-subtitle class="pannel-header">
         <div class="step">
           <button mat-icon-button color="primary" (click)="toStep(1)" class="completed">1</button>
-          <span class="step step-title">Ou </span><span class="step step-title"
-            [ngClass]="{'shrinked':stepLevel()!==1}">souhaitez-vous aller</span><span class="step step-title"> ?</span>
+          <span class="step step-title">Ou </span>
+          <span class="step step-title"
+            [ngClass]="{'step-title-shrinked':stepLevel()!==1}">souhaitez-vous aller</span><span class="step step-title"> ?</span>
         </div>
         <div class="step">
           <button mat-icon-button color="primary" (click)="toStep(2)" class="completed">2</button>
-          <span class="step step-title">
-            Qui </span> <span class="step step-title" [ngClass]="{'shrinked':stepLevel()!==2}">sera du
+          <span class="step step-title">Qui </span>
+          <span class="step step-title" [ngClass]="{'step-title-shrinked':stepLevel()!==2}">sera du
             voyage</span><span class="step step-title"> ?</span>
         </div>
         <div class="step">
           <button mat-icon-button color="primary" (click)="toStep(3)" class="completed">3</button>
-          <span class="step step-title">
-            Quand</span><span class="step step-title" [ngClass]="{'shrinked':stepLevel()!==3}">voulez-vous
+          <span class="step step-title">Quand </span>
+          <span class="step step-title" [ngClass]="{'step-title-shrinked':stepLevel()!==3}">voulez-vous
             partir</span><span class="step step-title"> ?</span>
         </div>
-      </mat-card-title>
+      </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content class="section-wrapper">
-
       <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
         <!-- Origine -->
         <mat-form-field appearance="outline">

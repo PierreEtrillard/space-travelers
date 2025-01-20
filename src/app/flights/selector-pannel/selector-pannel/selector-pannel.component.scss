@@ -13,12 +13,25 @@
 .pannel-header {
   display: flex;
   flex-wrap: nowrap;
+  width: 100%;
   .step{
     transition: all 300ms;
-    white-space: break-spaces;
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
+    &-title{
+      display: flex;
+      align-items: center;
+      white-space: break-spaces;
+      text-wrap-mode: nowrap;
+      &-shrinked{
+        transform-origin: left;
+        transform: scaleX(0);
+        flex: 0 2 0;
+        width: 0;
+        opacity: 0;
+      }
+    }
   }
 }
 .pannel-section {
@@ -28,11 +41,6 @@
   box-shadow: 0 0.3rem 0.2rem
     map-get(space-travelers-theme.$brand-color, primary);
   margin-bottom: 1rem;
-}
-.shrinked{
-  transform-origin: left;
-  transform: scaleX(0);
-  opacity: 0;
 }
   .field {
     transition: all 300ms;
