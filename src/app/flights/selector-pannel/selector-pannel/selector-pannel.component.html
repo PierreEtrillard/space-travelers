@@ -1,34 +1,52 @@
-<div> level: {{stepLevel()!==1}}</div>
+<div> level: {{stepLevel()}},<ul>
+    <li>origin: {{!!selectionForm.origin}}</li>
+    <li>destinations: {{!!!selectionForm.destinations.length}}</li>
+    <li>class: {{selectionForm.class}}</li>
+    <li>passengers: {{selectionForm.passengers}}</li>
+    <li>departureDate: {{selectionForm.departureDate}}</li>
+    <li>singleJourney: {{selectionForm.singleJourney}}</li>
+    <li>returnDate: {{selectionForm.returnDate}}</li>
+    <li>departureVariation: {{selectionForm.departureVariation}}</li>
+    <li>returnVariation: {{selectionForm.returnVariation}}</li>
+    <li>selectionForm ok{{!selectionForm}}</li>
+  </ul>
+  <li>
+
+  </li>
+</div>
 <form (ngSubmit)="searchFlights()" class="selection-form">
   <mat-card class="selection-form-content">
-    <mat-card-header>
-      <mat-card-subtitle class="pannel-header">
-        <div class="step">
-          <button mat-icon-button color="primary" (click)="toStep(1)" class="completed">1</button>
-          <span class="step step-title">Ou </span>
-          <span class="step step-title"
-            [ngClass]="{'step-title-shrinked':stepLevel()!==1}">souhaitez-vous aller</span><span class="step step-title"> ?</span>
-        </div>
-        <div class="step">
-          <button mat-icon-button color="primary" (click)="toStep(2)" class="completed">2</button>
-          <span class="step step-title">Qui </span>
-          <span class="step step-title" [ngClass]="{'step-title-shrinked':stepLevel()!==2}">sera du
-            voyage</span><span class="step step-title"> ?</span>
-        </div>
-        <div class="step">
-          <button mat-icon-button color="primary" (click)="toStep(3)" class="completed">3</button>
-          <span class="step step-title">Quand </span>
-          <span class="step step-title" [ngClass]="{'step-title-shrinked':stepLevel()!==3}">voulez-vous
-            partir</span><span class="step step-title"> ?</span>
-        </div>
-      </mat-card-subtitle>
+    <mat-card-header class="pannel-header">
+      <div class="step">
+        <button mat-icon-button color="primary" (click)="toStep(1)" class="completed">1</button>
+        <span class="step step-title">Ou </span>
+        <span class="step step-title" [ngClass]="{'step-title-shrinked':stepLevel()!==1}">souhaitez-vous
+          aller</span><span class="step step-title"> ?</span>
+      </div>
+      <div class="step">
+        <button mat-icon-button color="primary" [disabled]='stepLevel()<=1' (click)="toStep(2)"
+          class="completed">2</button>
+        <span class="step step-title">Qui </span>
+        <span class="step step-title" [ngClass]="{'step-title-shrinked':stepLevel()!==2}">sera du
+          voyage</span><span class="step step-title"> ?</span>
+      </div>
+      <div class="step">
+        <button mat-icon-button color="primary" [disabled]='stepLevel()!==3' (click)="toStep(3)"
+          class="completed">3</button>
+        <span class="step step-title">Quand </span>
+        <span class="step step-title" [ngClass]="{'step-title-shrinked':stepLevel()!==3}">voulez-vous
+          partir</span><span class="step step-title"> ?</span>
+      </div>
     </mat-card-header>
-    <mat-card-content class="section-wrapper">
+    <mat-card-content id="sections-wrapper">
       <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
         <!-- Origine -->
-        <mat-form-field appearance="outline">
+        <mat-form-field>
           <mat-label>Origine <mat-icon>flight_takeoff</mat-icon></mat-label>
-          <mat-select name="origin" [(ngModel)]="selectionForm.origin">
+          <mat-select 
+            name="origin"
+            [(ngModel)]="selectionForm.origin"
+            (selectionChange)="cleanDestinations($event)">
             @for (station of stations() ; track $index) {
             <mat-option [value]="station.name">{{station.name}}</mat-option>
             }
@@ -36,19 +54,50 @@
           @if(!selectionForm.origin){<mat-error>L'origine est requise.</mat-error>}
         </mat-form-field>
         <!-- Destinations -->
-        <mat-form-field appearance="outline">
-          <mat-label><mat-icon>flight_landing</mat-icon> Destinations </mat-label>
-          <input name="destinations" matInput [(ngModel)]="selectionForm.destinations"
-            placeholder="Ajouter des destinations (séparées par des virgules)" />
-          @if(selectionForm.destinations.length < 1){<mat-error>Une destination est requise.</mat-error>}
-        </mat-form-field>
+         <mat-form-field>        <mat-label><mat-icon>flight_landing</mat-icon> Destinations </mat-label>
+        <mat-chip-grid
+          #chipGrid
+          aria-label="Sélection des destinations"
+          name="destinations"
+          [(ngModel)]="selectionForm.destinations"
+         >
+          @for (selectedDests of selectionForm.destinations; track $index) {
+          <mat-chip-row [value]="selectedDests" (removed)="removeDest(selectedDests)">{{selectedDests}}
+            <button matChipRemove [attr.aria-label]="'supprime ' + selectedDests">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        }
+        </mat-chip-grid>
+        <!-- input injectant les valeurs à chipGrid lui même binder à selectForm.destinations il est aussi
+          possible de renseigner directement des destinations séparée par les clés separatorKey pour créer la liste-->
+        <input
+          #destInput
+          [matChipInputFor]="chipGrid"
+          placeholder="recherchez une destination..."
+          [matAutocomplete]="auto"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+          (matChipInputTokenEnd)="addDest($event)"
+        />
+        <!-- autocompletion pour destInput -->
+        <mat-autocomplete
+         #auto="matAutocomplete"
+         (optionSelected)="selectDest($event)"
+         >
+          @for (dest of destinations();track dest){
+          <mat-option [value]="dest">{{dest}}</mat-option>
+          }
+        </mat-autocomplete>
+        @if(selectionForm.destinations.length <= 0 ){<mat-error>Une destination est requise.</mat-error>}
+        @if(selectionForm.destinations.includes(selectionForm.origin) ){<mat-error>La station d'origine dois différer de la station de destination.</mat-error>}
+      </mat-form-field>
 
       </div>
       <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
         <!-- Classe -->
         <mat-form-field appearance="outline" class="field-large">
           <mat-label>Classe</mat-label>
-          <mat-select name="class" [(ngModel)]="selectionForm.class" required>
+          <mat-select name="class" [(ngModel)]="selectionForm.class" [placeholder]="selectionForm.class" required>
             <mat-option value="eco">Économique</mat-option>
             <mat-option value="business">Affaires</mat-option>
             <mat-option value="premium">Première</mat-option>
@@ -120,25 +169,49 @@
     <mat-card-actions class="action-btn-wrapper">
       @switch (stepLevel()) {
       @case (1){
-      <button mat-fab color="accent" disabled="false" type="button"><mat-icon>arrow_left</mat-icon></button>
-      <button mat-fab color="accent" disabled="selectionForm.origin && selectionForm.destinations.length"
-        type="button"><mat-icon>arrow_right</mat-icon></button>
+      <button 
+        mat-fab 
+        color="accent"
+        [disabled]="(!!!selectionForm.origin || selectionForm.destinations.length<=0)"
+        (click)="toStep(2)" 
+        type="button"
+      >
+        <mat-icon>arrow_right</mat-icon></button>
       }
       @case (2){
-      <button mat-fab color="accent" disabled="false" type="button"><mat-icon>arrow_left</mat-icon></button>
+      <button 
+        mat-fab 
+        color="accent"
+        type="button" 
+        (click)="toStep(1)"
+      ><mat-icon>arrow_left</mat-icon></button>
 
-      <button mat-fab color="accent" [disabled]="(selectionForm.class && selectionForm.passengers)"
-        type="button"><mat-icon>arrow_right</mat-icon></button>
+      <button 
+      mat-fab 
+      color="accent"
+      [disabled]="(!selectionForm.class || selectionForm.passengers<=0)"
+      type="button"
+      (click)="toStep(3)"
+      >
+      <mat-icon>arrow_right</mat-icon></button>
       }
       @case (3){
-      <button mat-fab color="accent" disabled="false" type="button"><mat-icon>arrow_left</mat-icon></button>
+      <button 
+        mat-fab 
+        color="accent"
+        type="button"
+        (click)="toStep(2)"
+      >
+      <mat-icon>arrow_left</mat-icon></button>
 
-      <button mat-fab extended color="accent" type="submit" [disabled]="true">
+      <button 
+        mat-fab 
+        extended
+        color="accent" type="submit"
+        [disabled]="true"
+      >
         Trouver un vol<mat-icon>rocket_launch</mat-icon>
       </button>
-      }
-      @default{
-
       }
       }
     </mat-card-actions>
