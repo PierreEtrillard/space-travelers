@@ -1,21 +1,48 @@
-#header-section>h1{
+#header-section > h1 {
   max-width: 70%;
   white-space: normal;
 }
 .spacer {
   flex: 1 1 auto;
 }
-.card-container{
-    display: flex;
-    flex-wrap: wrap;
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
 }
-.destination-card{
-    margin: 1rem;
-    height: max-content;
-        @media screen  and (min-width: 600px){
-        width: 30vw;
+.destination-card {
+  margin: 1rem;
+  max-width: 92vw;
+  height: max-content;
+  @media screen and (min-width: 600px) {
+    width: 30vw;
+    img {
+      width: 100%;
     }
-    img{
-        width: 100%;
+  }
+  .description {
+    cursor: pointer;
+    .toggler {
+      transition: all 200ms;
+      vertical-align: middle;
     }
+    &-opened {
+      .toggler {
+        transform: rotate(180deg);
+      }
+    }
+    &-closed {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 85%;
+      .toggler {
+        transform: rotate(90deg);
+      }
+    }
+  }
+  .bottom {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 }

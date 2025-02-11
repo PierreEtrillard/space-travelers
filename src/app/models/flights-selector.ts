@@ -4,8 +4,8 @@ export interface FlightsSelector {
   origin: string;
   destinations: string[];
   singleJourney: boolean;
-  departure: Date;
-  departureDateRange: number;
-  arrival: Date;
-  arrivalDateRange: number;
+  departureDate: Date|null;
+  departureVariation: number;
+  returnDate: Date|null;
+  returnVariation: number;
 }

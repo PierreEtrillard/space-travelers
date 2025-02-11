@@ -1,6 +1,6 @@
 <div> level: {{stepLevel()}},<ul>
-    <li>origin: {{!!selectionForm.origin}}</li>
-    <li>destinations: {{!!!selectionForm.destinations.length}}</li>
+    <li>origin: {{originField.hasError('required')}}</li>
+    <li>destinations: {{selectionForm.destinations.length>=1}}</li>
     <li>class: {{selectionForm.class}}</li>
     <li>passengers: {{selectionForm.passengers}}</li>
     <li>departureDate: {{selectionForm.departureDate}}</li>
@@ -8,14 +8,14 @@
     <li>returnDate: {{selectionForm.returnDate}}</li>
     <li>departureVariation: {{selectionForm.departureVariation}}</li>
     <li>returnVariation: {{selectionForm.returnVariation}}</li>
-    <li>selectionForm ok{{!selectionForm}}</li>
+    <li>selectionForm state : {{searchForm.valid}}</li>
   </ul>
   <li>
 
   </li>
 </div>
-<form (ngSubmit)="searchFlights()" class="selection-form">
-  <mat-card class="selection-form-content">
+<form (ngSubmit)="searchFlights()" #searchForm="ngForm">
+  <mat-card class="pannel">
     <mat-card-header class="pannel-header">
       <div class="step">
         <button mat-icon-button color="primary" (click)="toStep(1)" class="completed">1</button>
@@ -38,113 +38,117 @@
           partir</span><span class="step step-title"> ?</span>
       </div>
     </mat-card-header>
-    <mat-card-content id="sections-wrapper">
-      <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
+    <mat-card-content>
+      <div class="pannel-sections-spacer"></div>
+      <div [ngClass]="{'pannel-sections-hidden':(stepLevel()!==1)}" class="pannel-sections">
         <!-- Origine -->
-        <mat-form-field>
+        <mat-form-field class="field">
           <mat-label>Origine <mat-icon>flight_takeoff</mat-icon></mat-label>
-          <mat-select 
-            name="origin"
-            [(ngModel)]="selectionForm.origin"
-            (selectionChange)="cleanDestinations($event)">
+          <mat-select
+           name="origin"
+           [(ngModel)]="selectionForm.origin"
+           required
+           #originField="ngModel"
+           (selectionChange)="cleanDestinations($event)
+           ">
             @for (station of stations() ; track $index) {
             <mat-option [value]="station.name">{{station.name}}</mat-option>
             }
           </mat-select>
-          @if(!selectionForm.origin){<mat-error>L'origine est requise.</mat-error>}
+          @if(originField.hasError('required')){<mat-error>L'origine est requise.</mat-error>}
         </mat-form-field>
+        <mat-icon class="field-spacer">compare_arrows</mat-icon>
         <!-- Destinations -->
-         <mat-form-field>        <mat-label><mat-icon>flight_landing</mat-icon> Destinations </mat-label>
-        <mat-chip-grid
-          #chipGrid
-          aria-label="Sélection des destinations"
-          name="destinations"
-          [(ngModel)]="selectionForm.destinations"
-         >
-          @for (selectedDests of selectionForm.destinations; track $index) {
-          <mat-chip-row [value]="selectedDests" (removed)="removeDest(selectedDests)">{{selectedDests}}
-            <button matChipRemove [attr.aria-label]="'supprime ' + selectedDests">
-              <mat-icon>cancel</mat-icon>
-            </button>
-          </mat-chip-row>
-        }
-        </mat-chip-grid>
-        <!-- input injectant les valeurs à chipGrid lui même binder à selectForm.destinations il est aussi
+        <mat-form-field class="field">
+          <mat-label><mat-icon>flight_landing</mat-icon> Destinations </mat-label>
+          <mat-chip-grid
+           #chipGrid
+           aria-label="Sélection des destinations"
+           name="destinations"
+           [(ngModel)]="selectionForm.destinations"
+           required
+           #destsField="ngModel"
+           >
+            @for (selectedDests of selectionForm.destinations; track $index) {
+            <mat-chip-row [value]="selectedDests" (removed)="removeDest(selectedDests)">{{selectedDests}}
+              <button matChipRemove [attr.aria-label]="'supprime ' + selectedDests">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            }
+          </mat-chip-grid>
+          <!-- input injectant les valeurs à chipGrid lui même binder à selectForm.destinations il est aussi
           possible de renseigner directement des destinations séparée par les clés separatorKey pour créer la liste-->
-        <input
+          <input 
           #destInput
-          [matChipInputFor]="chipGrid"
+          [matChipInputFor]="chipGrid" 
           placeholder="recherchez une destination..."
-          [matAutocomplete]="auto"
+           [matAutocomplete]="auto"
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-          (matChipInputTokenEnd)="addDest($event)"
-        />
-        <!-- autocompletion pour destInput -->
-        <mat-autocomplete
-         #auto="matAutocomplete"
-         (optionSelected)="selectDest($event)"
-         >
-          @for (dest of destinations();track dest){
-          <mat-option [value]="dest">{{dest}}</mat-option>
-          }
-        </mat-autocomplete>
-        @if(selectionForm.destinations.length <= 0 ){<mat-error>Une destination est requise.</mat-error>}
-        @if(selectionForm.destinations.includes(selectionForm.origin) ){<mat-error>La station d'origine dois différer de la station de destination.</mat-error>}
-      </mat-form-field>
+            (matChipInputTokenEnd)="addDest($event)" />
+          <!-- autocompletion pour destInput -->
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectDest($event)">
+            @for (dest of destinations();track dest){
+            <mat-option [value]="dest">{{dest}}</mat-option>
+            }
+          </mat-autocomplete>
+          @if(destsField.hasError('required') ){<mat-error>Une destination est requise.</mat-error>}
+            @if(selectionForm.destinations.includes(selectionForm.origin) ){<mat-error>La station d'origine dois
+              différer de la station de destination.</mat-error>}
+        </mat-form-field>
 
       </div>
-      <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
+      <div [ngClass]="{'pannel-sections-hidden':(stepLevel()!==2)}" class="pannel-sections">
         <!-- Classe -->
-        <mat-form-field appearance="outline" class="field-large">
+        <mat-form-field class="field field-large">
           <mat-label>Classe</mat-label>
-          <mat-select name="class" [(ngModel)]="selectionForm.class" [placeholder]="selectionForm.class" required>
+          <mat-select #classField="ngModel" name="class" [(ngModel)]="selectionForm.class" [placeholder]="selectionForm.class" required>
             <mat-option value="eco">Économique</mat-option>
             <mat-option value="business">Affaires</mat-option>
             <mat-option value="premium">Première</mat-option>
           </mat-select>
-          @if(!selectionForm.class){ <mat-error>La classe est requise.</mat-error>}
+          @if(classField.hasError('required')){ <mat-error>La classe est requise.</mat-error>}
         </mat-form-field>
         <!-- Passagers -->
-        <mat-form-field appearance="outline" class="field-small">
+        <mat-form-field appearance="outline" class="field field-small">
           <mat-label>Nombre de Passagers</mat-label>
-          <input name="passengers" matInput type="number" min="1" [(ngModel)]="selectionForm.passengers" />
-          @if(selectionForm.passengers<1){ <mat-error>Au moins 1 passager requis.</mat-error>}
+          <input 
+          name="passengers"
+          matInput
+          type="number"
+          min="1"
+          max="20"
+          [(ngModel)]="selectionForm.passengers"
+          #passengersField="ngModel" />
+          @if(passengersField.errors){ <mat-error>Entre 1 et 20 passagers maximum.</mat-error>}
         </mat-form-field>
       </div>
       <!--  pannel-section pannel-section dates -->
-      <div [ngClass]="{'shrinked':(stepLevel()!==1)}" class="pannel-section">
-        <div class="departure-fields ">
-          <!-- Date de départ -->
-          <mat-form-field appearance="outline" class="field-small">
-            <mat-label>Départ</mat-label>
-            <input name="departure-date" [min]="availableDepartureDates()[0]" matInput [matDatepicker]="departurePicker"
-              [matDatepickerFilter]="departureDateFilter" [(ngModel)]="selectionForm.departureDate" />
-            <mat-datepicker-toggle matSuffix [for]="departurePicker"></mat-datepicker-toggle>
-            <mat-datepicker #departurePicker></mat-datepicker>
-          </mat-form-field>
-          <!-- Variation de la date de départ -->
-          <mat-form-field appearance="outline" class="field-large">
-            <mat-label>~ {{selectionForm.departureVariation*2}} jours</mat-label>
-            <mat-select name="departure-variation" [(ngModel)]="selectionForm.departureVariation" required>
-              <mat-option value="1">2 jours</mat-option>
-              <mat-option value="3.5">1 semaine</mat-option>
-              <mat-option value="15">1 mois</mat-option>
-            </mat-select>
-            @if(!selectionForm.departureDate){ <mat-error>Aucune date séléctionnée</mat-error>}
+      <div [ngClass]="{'pannel-sections-hidden':(stepLevel()!==3)}" class="pannel-sections pannel-sections-relative">
+        <!-- Date de départ -->
+        <mat-form-field class="field field-large">
+          <mat-label>Départ</mat-label>
+          <input name="departure-date" [min]="availableDepartureDates()[0]" matInput [matDatepicker]="departurePicker"
+            [matDatepickerFilter]="departureDateFilter" [(ngModel)]="selectionForm.departureDate" #departureDateField="ngModel" required/>
+          <mat-datepicker-toggle matSuffix [for]="departurePicker"></mat-datepicker-toggle>
+          <mat-datepicker #departurePicker></mat-datepicker>
+        </mat-form-field>
+        <!-- Variation de la date de départ -->
+        <mat-form-field appearance="outline" class="field field-small">
+          <mat-label>~ {{selectionForm.departureVariation*2}} jours</mat-label>
+          <mat-select name="departure-variation" [(ngModel)]="selectionForm.departureVariation" required>
+            <mat-option value="1">2 jours</mat-option>
+            <mat-option value="3.5">1 semaine</mat-option>
+            <mat-option value="15">1 mois</mat-option>
+          </mat-select>
+          @if(departureDateField.errors){ <mat-error>Sélectionez une date de départ valide</mat-error>}
 
-          </mat-form-field>
-        </div>
-        <!-- Trajet simple -->
-        <mat-button-toggle-group name="singleJourney" [(ngModel)]="selectionForm.singleJourney">
-          <mat-button-toggle [value]="true"> Trajet simple</mat-button-toggle>
-          <mat-button-toggle [value]="false">Allez-Retour</mat-button-toggle>
-        </mat-button-toggle-group>
+        </mat-form-field>
       </div>
       @if(!selectionForm.singleJourney){
-      <span>{{selectionForm.singleJourney}}</span>
-      <div class="field">
+      <div [ngClass]="{'pannel-sections-hidden':(stepLevel()!==3)}" class="pannel-sections pannel-sections-relative">
         <!-- Date de retour -->
-        <mat-form-field appearance="outline" class="field-small">
+        <mat-form-field class="field field-large">
           <mat-label>Retour</mat-label>
           <input name="return-date" [min]="availableReturnDates()[0]" matInput [matDatepicker]="returnPicker"
             [matDatepickerFilter]="returnDateFilter" [(ngModel)]="selectionForm.returnDate" />
@@ -152,7 +156,7 @@
           <mat-datepicker #returnPicker></mat-datepicker>
         </mat-form-field>
         <!-- Variation de la date de retour -->
-        <mat-form-field appearance="outline" class="field-large">
+        <mat-form-field appearance="outline" class="field field-small">
           <mat-label>~ {{selectionForm.returnVariation*2}} jours</mat-label>
           <mat-select name="return-variation" [(ngModel)]="selectionForm.returnVariation">
             <mat-option value="1">2 jours</mat-option>
@@ -162,54 +166,34 @@
         </mat-form-field>
       </div>
       }
+      <!-- Trajet simple -->
+      <div [ngClass]="{'pannel-sections-hidden':(stepLevel()!==3)}" class="pannel-sections pannel-sections-relative">
+        <mat-button-toggle-group name="singleJourney" [(ngModel)]="selectionForm.singleJourney">
+          <mat-button-toggle [value]="true"> Trajet simple</mat-button-toggle>
+          <mat-button-toggle [value]="false">Allez-Retour</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
     </mat-card-content>
-    <button class="action-btn action-btn-left" mat-mini-fab type="reset"
-      (click)="onReset()"><mat-icon>autorenew</mat-icon>
-    </button>
     <mat-card-actions class="action-btn-wrapper">
       @switch (stepLevel()) {
       @case (1){
-      <button 
-        mat-fab 
-        color="accent"
-        [disabled]="(!!!selectionForm.origin || selectionForm.destinations.length<=0)"
-        (click)="toStep(2)" 
-        type="button"
-      >
+      <div class="shaddow-btn"></div>
+      <button mat-fab color="accent" [disabled]="(originField.errors || destsField.errors)"
+        (click)="toStep(2)" type="button">
         <mat-icon>arrow_right</mat-icon></button>
       }
       @case (2){
-      <button 
-        mat-fab 
-        color="accent"
-        type="button" 
-        (click)="toStep(1)"
-      ><mat-icon>arrow_left</mat-icon></button>
+      <button mat-fab color="accent" type="button" (click)="toStep(1)"><mat-icon>arrow_left</mat-icon></button>
 
-      <button 
-      mat-fab 
-      color="accent"
-      [disabled]="(!selectionForm.class || selectionForm.passengers<=0)"
-      type="button"
-      (click)="toStep(3)"
-      >
-      <mat-icon>arrow_right</mat-icon></button>
+      <button mat-fab color="accent" [disabled]="(classField.errors || passengersField.errors)" type="button"
+        (click)="toStep(3)">
+        <mat-icon>arrow_right</mat-icon></button>
       }
       @case (3){
-      <button 
-        mat-fab 
-        color="accent"
-        type="button"
-        (click)="toStep(2)"
-      >
-      <mat-icon>arrow_left</mat-icon></button>
+      <button mat-fab color="accent" type="button" (click)="toStep(2)">
+        <mat-icon>arrow_left</mat-icon></button>
 
-      <button 
-        mat-fab 
-        extended
-        color="accent" type="submit"
-        [disabled]="true"
-      >
+      <button mat-fab extended color="accent" type="submit" [disabled]="searchForm.errors && !validatedDates()">
         Trouver un vol<mat-icon>rocket_launch</mat-icon>
       </button>
       }

@@ -5,16 +5,19 @@
     </mat-card-header>
     <img mat-card-image [src]="picsUrl + destination.photoRef" [alt]="'Photo de '+  destination.name">
     <mat-card-content>
-      <p>
+      <p class="description" [ngClass]="closedDescriptions()[$index] ? 'description-closed' : 'description-opened'"
+        (click)="descriptionToggler($index)">
+        <mat-icon class="toggler">expand_less</mat-icon>
         {{destination.description}}
       </p>
-      <p>{{destination.name}} c'est le lieu idéal pour :</p>
+      <p>
+        {{destination.name}} c'est le lieu idéal pour :</p>
       <mat-list>
         @for (activitie of destination.activities; track $index) {
         <mat-list-item>{{activitie}}</mat-list-item>}
       </mat-list>
     </mat-card-content>
-    <mat-card-actions>
+    <mat-card-actions class="bottom">
       @if ($index) {
       <button mat-fab extended (click)="foundFlight(destination.name)">Trouvez le prochain vol vers
         {{destination.name}}</button>}
