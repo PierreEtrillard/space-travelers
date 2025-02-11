@@ -70,16 +70,17 @@ import { Destination } from '../../../models/destination';
 export class SelectorPannelComponent {
   store = inject(Store);
   flightsService = inject(FlightsService);
-
+  
   // Signals
   stations = this.store.selectSignal(destinationsFeature.selectDestinations);
-  availableDepartureDates = signal<Date[]>([]);
-  availableReturnDates = signal<Date[]>([]);
   storedSelection = this.store.selectSignal(
     selectionFeature.selectSelectionDetails
   );
+  availableDepartureDates=this.store.selectSignal(selectionFeature.selectTakeOffDepartureDates);
+  availableReturnDates=this.store.selectSignal(selectionFeature.selectTakeOffReturnDates);
+  
   readyToSend = this.store.selectSignal(selectionFeature.selectIsRequestable);
-
+  
   // Selection form
   selectionForm: FlightsSelector = {
     class: '',
@@ -92,69 +93,31 @@ export class SelectorPannelComponent {
     returnDate: null,
     returnVariation: 1,
   };
-  validatedDates = () => {
-    const msInDay = 86400000; // Nombre de millisecondes dans une journée
-    // Vérification que departureDate et returnDate sont bien des objets Date valides
-    const isValidDate = (date: any) =>
-      date instanceof Date && !isNaN(date.getTime());
-
-    if (!this.selectionForm.singleJourney) {
-      // Si singleJourney est faux, vérifier si departureDate et returnDate sont des dates valides
-      return this.selectionForm.departureDate &&
-        isValidDate(this.selectionForm.departureDate) &&
-        this.selectionForm.returnDate &&
-        isValidDate(this.selectionForm.returnDate)
-        ? // Comparer la date de départ + variation (en jours) avec la date de retour - variation (en jours)
-          this.selectionForm.departureDate.getTime() +
-            this.selectionForm.departureVariation * msInDay <
-            this.selectionForm.returnDate.getTime() -
-              this.selectionForm.returnVariation * msInDay
-        : false; // Si l'une des dates n'est pas valide, renvoyer false
-    } else {
-      // Si ce n'est pas un voyage aller-retour, juste vérifier si departureDate est une date valide
-      return this.selectionForm.departureDate &&
-        isValidDate(this.selectionForm.departureDate)
-        ? true
-        : false;
-    }
-  };
-
   stepLevel = signal(1);
-
+  toStep(step: number) {
+    this.stepLevel.set(step);
+  }
+  
   constructor() {
     if (!this.stations().length) {
       this.store.dispatch(DestinationsActions.loadDestinations());
     }
-    effect(() => {
-      if (this.selectionForm.origin) {
-        this.flightsService
-          .getTakeOffDatesFromOne(this.selectionForm.origin)
-          .subscribe((dates) => this.availableDepartureDates.set(dates));
-      }
-      if (this.selectionForm.destinations.length) {
-        this.flightsService
-          .getTakeOffDatesFromMany(this.selectionForm.destinations)
-          .subscribe((dates) => this.availableReturnDates.set(dates));
-      }
-      this.destinations.set(this.destinationsCleaner(this.stations())); // met à jour le tableau de destination en cas de rechargement de la page
-    },
-    {allowSignalWrites:true});
   }
-
-  // Stations selections
+  
+  // Selections de Station
+  // déclanché aux changement d'origin
+  changeOrigin(event: MatSelectChange) {
+    
+    const newOrigin:string = event.value;  
+    this.store.dispatch(SelectionActions.changeOriginSelection({newOrigin}));
+    this.removeDest(newOrigin); // supprime la nouvelle origine de la selection des destinations
+  }
+  destinations = signal(this.destinationsCleaner(this.stations()));
   readonly separatorKeysCodes: number[] = [ENTER, COMMA]; // permet de séparer les destinations par la touche entrée ou une virgule dans l'input
   destinationsCleaner(stations: Destination[]): string[] {
     return stations
-      .filter((station) => station.name !== this.selectionForm.origin)
-      .map((dest) => dest.name);
-  }
-  destinations = signal(this.destinationsCleaner(this.stations()));
-  // déclanché aux changement d'origin
-  cleanDestinations(event: MatSelectChange) {
-    const newOrigin = event.value;
-    this.removeDest(newOrigin); // supprime la nouvelle origine de la selection des destinations
-    this.destinations.set(this.destinationsCleaner(this.stations())); // met à jour le tableau de destination sans la nouvelle origine
-    this.store.dispatch(SelectionActions.changeOriginSelection(newOrigin));
+    .filter((station) => station.name !== this.selectionForm.origin)
+    .map((dest) => dest.name);
   }
   // déclenché à la selection d'un element de la liste fournis par mat-autocomplete
   selectDest(event: MatAutocompleteSelectedEvent): void {
@@ -170,8 +133,9 @@ export class SelectorPannelComponent {
     }
     event.option.deselect();
   }
-  // déclanché à la saisie de #destInput
+  // déclanché à la modification de chipGrid
   addDest(event: MatChipInputEvent) {
+    // ajoute la destination selectionnée ou saisie dans l'autocompleteur au tableau des destinations séléctionnées
     const newDest = (event.value || '').trim();
     if (
       newDest &&
@@ -185,26 +149,53 @@ export class SelectorPannelComponent {
         })
       );
     }
-    // Clear the input value
-    event.chipInput!.clear();
   }
-
+  
+  
   removeDest(_dest: string) {
     this.selectionForm.destinations = this.selectionForm.destinations.filter(
       (dest) => dest !== _dest
     );
   }
+  // Selections des Dates
 
   departureDateFilter = (pickerDate: Date | null): boolean =>
     pickerDate
-      ? this.dateFilter(pickerDate, this.availableDepartureDates())
-      : false;
-
+  ? this.dateFilter(pickerDate, this.availableDepartureDates())
+  : false;
+  
   returnDateFilter = (pickerDate: Date | null): boolean =>
     pickerDate
-      ? this.dateFilter(pickerDate, this.availableReturnDates())
+  ? this.dateFilter(pickerDate, this.availableReturnDates())
+  : false;
+  validatedDates = () => {
+    const msInDay = 86400000; // Nombre de millisecondes dans une journée
+    // Vérification que departureDate et returnDate sont bien des objets Date valides
+    const isValidDate = (date: any) =>
+      date instanceof Date && !isNaN(date.getTime());
+    
+    if (!this.selectionForm.singleJourney) {
+      // Si singleJourney est faux, vérifier si departureDate et returnDate sont des dates valides
+      return this.selectionForm.departureDate &&
+      isValidDate(this.selectionForm.departureDate) &&
+      this.selectionForm.returnDate &&
+      isValidDate(this.selectionForm.returnDate)
+      ? // Comparer la date de départ + variation (en jours) avec la date de retour - variation (en jours)
+      this.selectionForm.departureDate.getTime() +
+      this.selectionForm.departureVariation * msInDay <
+      this.selectionForm.returnDate.getTime() -
+      this.selectionForm.returnVariation * msInDay
+      : false; // Si l'une des dates n'est pas valide, renvoyer false
+    } else {
+      // Si ce n'est pas un voyage aller-retour, juste vérifier si departureDate est une date valide
+      return this.selectionForm.departureDate &&
+      isValidDate(this.selectionForm.departureDate)
+      ? true
       : false;
-
+    }
+  };
+  
+  
   dateFilter(dateToTest: Date, availableDates: Date[]): boolean {
     return availableDates.some(
       (availableDate) =>
@@ -214,9 +205,6 @@ export class SelectorPannelComponent {
     );
   }
 
-  toStep(step: number) {
-    this.stepLevel.set(step);
-  }
 
   dateRangeCalculator(date: Date, variation: number) {
     const start = new Date(date);

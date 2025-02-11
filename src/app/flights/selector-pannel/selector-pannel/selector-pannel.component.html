@@ -1,5 +1,5 @@
 <div> level: {{stepLevel()}},<ul>
-    <li>origin: {{originField.hasError('required')}}</li>
+    <li>origin: {{selectionForm.origin?"destOk":"pasOk"}}</li>
     <li>destinations: {{selectionForm.destinations.length>=1}}</li>
     <li>class: {{selectionForm.class}}</li>
     <li>passengers: {{selectionForm.passengers}}</li>
@@ -49,7 +49,7 @@
            [(ngModel)]="selectionForm.origin"
            required
            #originField="ngModel"
-           (selectionChange)="cleanDestinations($event)
+           (selectionChange)="changeOrigin($event)
            ">
             @for (station of stations() ; track $index) {
             <mat-option [value]="station.name">{{station.name}}</mat-option>
@@ -123,12 +123,15 @@
           @if(passengersField.errors){ <mat-error>Entre 1 et 20 passagers maximum.</mat-error>}
         </mat-form-field>
       </div>
-      <!--  pannel-section pannel-section dates -->
+      <!-- pannel-section dates -->
       <div [ngClass]="{'pannel-sections-hidden':(stepLevel()!==3)}" class="pannel-sections pannel-sections-relative">
         <!-- Date de départ -->
         <mat-form-field class="field field-large">
           <mat-label>Départ</mat-label>
-          <input name="departure-date" [min]="availableDepartureDates()[0]" matInput [matDatepicker]="departurePicker"
+          <input 
+            name="departure-date" 
+            [min]="availableDepartureDates()[0]"
+            matInput [matDatepicker]="departurePicker"
             [matDatepickerFilter]="departureDateFilter" [(ngModel)]="selectionForm.departureDate" #departureDateField="ngModel" required/>
           <mat-datepicker-toggle matSuffix [for]="departurePicker"></mat-datepicker-toggle>
           <mat-datepicker #departurePicker></mat-datepicker>

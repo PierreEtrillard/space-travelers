@@ -1,12 +1,13 @@
 import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
 import { SelectionActions } from '../actions/selection.actions';
 import { TargetedFlights } from '../../models/targeted-flights';
-import { FlightsSelector } from '../../models/flights-selector';
 
 export interface SelectionState {
   selectionDetails: TargetedFlights;
   isRequestable: boolean;
   error: any | null;
+  takeOffDepartureDates: Date[];
+  takeOffReturnDates: Date[];
 }
 export const initialState: SelectionState = {
   selectionDetails: {
@@ -19,6 +20,8 @@ export const initialState: SelectionState = {
     arrivalDateRange: null,
   },
   isRequestable: false,
+  takeOffDepartureDates: [],
+  takeOffReturnDates: [],
   error: null,
 };
 export const selectionReducer = createReducer(

@@ -40,6 +40,7 @@ export class FlightsService {
     interface TakeOffDatesDto {
       departure: Date;
     }
+    if (!station) {throw new Error('station absente !');}
     return this.http
       .post<TakeOffDatesDto[]>(`${this.apiUrl}/flights/from`, station)
       .pipe(
