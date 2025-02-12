@@ -1,13 +1,14 @@
 import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
 import { SelectionActions } from '../actions/selection.actions';
 import { TargetedFlights } from '../../models/targeted-flights';
+import { AvailableDates } from '../../models/available-dates';
 
 export interface SelectionState {
   selectionDetails: TargetedFlights;
   isRequestable: boolean;
+  possibleDepartureDates: AvailableDates;
+  possibleReturnDates: AvailableDates;
   error: any | null;
-  takeOffDepartureDates: Date[];
-  takeOffReturnDates: Date[];
 }
 export const initialState: SelectionState = {
   selectionDetails: {
@@ -17,11 +18,11 @@ export const initialState: SelectionState = {
     destinations: [],
     singleJourney: false,
     departureDateRange: null,
-    arrivalDateRange: null,
+    returnDateRange: null,
   },
   isRequestable: false,
-  takeOffDepartureDates: [],
-  takeOffReturnDates: [],
+  possibleDepartureDates: [],
+  possibleReturnDates: [],
   error: null,
 };
 export const selectionReducer = createReducer(
@@ -33,6 +34,18 @@ export const selectionReducer = createReducer(
   on(SelectionActions.changeOriginSelection, (state, { newOrigin }) => ({
     ...state,
     selectionDetails: { ...state.selectionDetails, origin: newOrigin },
+  })),
+  on(SelectionActions.changeOriginSelection, (state, { newOrigin }) => ({
+    ...state,
+    selectionDetails: { ...state.selectionDetails, origin: newOrigin },
+  })),
+  on(SelectionActions.loadPossibleDeparturesSuccess, (state, { possibleDepartures }) => ({
+    ...state,
+    possibleDepartureDates: possibleDepartures,
+  })),
+  on(SelectionActions.loadPossibleReturnsSuccess, (state, { possibleReturns }) => ({
+    ...state,
+    possibleReturnDates: possibleReturns,
   })),
   on(
     SelectionActions.changeDepartureDateSelection,
@@ -54,7 +67,7 @@ export const selectionReducer = createReducer(
       },
     })
   ),
-  on(SelectionActions.changeArrivalDateSelection, (state, { datesRange }) => ({
+  on(SelectionActions.changeReturnDateSelection, (state, { datesRange }) => ({
     ...state,
     selectionDetails: {
       ...state.selectionDetails,

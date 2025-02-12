@@ -130,9 +130,10 @@
           <mat-label>Départ</mat-label>
           <input 
             name="departure-date" 
-            [min]="availableDepartureDates()[0]"
-            matInput [matDatepicker]="departurePicker"
-            [matDatepickerFilter]="departureDateFilter" [(ngModel)]="selectionForm.departureDate" #departureDateField="ngModel" required/>
+            [min]="firstAvailableDepartureDates()"
+            matInput
+            [matDatepicker]="departurePicker"
+            [matDatepickerFilter]="departureDateFilter.bind(this)" [(ngModel)]="selectionForm.departureDate" #departureDateField="ngModel" required/>
           <mat-datepicker-toggle matSuffix [for]="departurePicker"></mat-datepicker-toggle>
           <mat-datepicker #departurePicker></mat-datepicker>
         </mat-form-field>
@@ -153,7 +154,7 @@
         <!-- Date de retour -->
         <mat-form-field class="field field-large">
           <mat-label>Retour</mat-label>
-          <input name="return-date" [min]="availableReturnDates()[0]" matInput [matDatepicker]="returnPicker"
+          <input name="return-date" [min]="firstAvailableReturnDates()" matInput [matDatepicker]="returnPicker"
             [matDatepickerFilter]="returnDateFilter" [(ngModel)]="selectionForm.returnDate" />
           <mat-datepicker-toggle matSuffix [for]="returnPicker"></mat-datepicker-toggle>
           <mat-datepicker #returnPicker></mat-datepicker>

@@ -1,7 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { FlightsSelector } from '../../models/flights-selector';
 import { FlightsGroup } from '../../models/flights-group';
-import { TargetedFlights } from '../../models/targeted-flights';
 
 export const FlightsActions = createActionGroup({
   source: 'Flights/API',

@@ -6,5 +6,5 @@ export interface TargetedFlights{
    destinations: string[],
    singleJourney: boolean,
    departureDateRange:DateRange<Date> | null,
-   arrivalDateRange:DateRange<Date> | null,
+   returnDateRange:DateRange<Date> | null,
  }

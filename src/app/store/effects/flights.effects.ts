@@ -3,8 +3,6 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
   catchError,
   map,
-  concatMap,
-  mergeMap,
   switchMap,
 } from 'rxjs/operators';
 import { Observable, EMPTY, of } from 'rxjs';

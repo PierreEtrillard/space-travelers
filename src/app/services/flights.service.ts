@@ -7,6 +7,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
 import { selectionFeature } from '../store/reducers/selection.reducer';
 import { FlightsGroup } from '../models/flights-group';
+import { AvailableDates } from '../models/available-dates';
 
 @Injectable({
   providedIn: 'root',
@@ -36,25 +37,18 @@ export class FlightsService {
   countFlightsRegistred$ = this.http.get<number>(
     `${this.apiUrl}/flights/count`
   );
-  getTakeOffDatesFromOne(station: string): Observable<Date[]> {
+  getTakeOffDatesFromOne(station: string): Observable<AvailableDates> {
     interface TakeOffDatesDto {
       departure: Date;
     }
     if (!station) {throw new Error('station absente !');}
     return this.http
-      .post<TakeOffDatesDto[]>(`${this.apiUrl}/flights/from`, station)
-      .pipe(
-        map((takeOffList) =>
-          takeOffList.map((takeOffDate) => new Date(takeOffDate.departure))
-        )
-      );
+      .post<AvailableDates>(`${this.apiUrl}/flights/from`, station)
   }
-  getTakeOffDatesFromMany(stations: string[]): Observable<Date[]> {
+  getTakeOffDatesFromMany(stations: string[]): Observable<AvailableDates> {
     return from(stations)
     .pipe(
       concatMap((station:string) => {
-        console.log("station: "+station);
-        
         return this.getTakeOffDatesFromOne(station)}
     ))
   }

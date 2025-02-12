@@ -12,6 +12,7 @@ import { provideEffects } from '@ngrx/effects';
 import { destinationsFeature } from "./store/reducers/destinations.reducer";
 import { selectionFeature, selectionReducer } from "./store/reducers/selection.reducer";
 import { loadDestinations$ } from "./store/effects/destinations.effects";
+import { changeOriginSelection$, changeDestinationsSelections$} from "./store/effects/selection.effects";
 const keycloakUrl:string= environment.keycloakUrl;
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
@@ -34,6 +35,8 @@ export const appConfig: ApplicationConfig = {
     provideState(destinationsFeature),
     provideState(selectionFeature),
     provideEffects({loadDestinations$}),
+    provideEffects({changeOriginSelection$}),
+    provideEffects({changeDestinationsSelections$}),
     provideStoreDevtools(),
     KeycloakService,
     {
